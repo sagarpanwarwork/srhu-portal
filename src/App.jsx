@@ -69,6 +69,7 @@ function App() {
   const [showcaseRole, setShowcaseRole] = useState('Employee')
   const [dashboardRole, setDashboardRole] = useState('Employee')
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
 
   const menuItems = useMemo(
     () => [
@@ -837,7 +838,13 @@ function App() {
           </section>
         </main>
       ) : (
-        <main className={isSidebarCollapsed ? 'dashboard-layout collapsed' : 'dashboard-layout'}>
+        <main
+          className={
+            isSidebarCollapsed
+              ? `dashboard-layout collapsed${isMobileNavOpen ? ' mobile-nav-open' : ''}`
+              : `dashboard-layout${isMobileNavOpen ? ' mobile-nav-open' : ''}`
+          }
+        >
           <aside className={isSidebarCollapsed ? 'sidebar collapsed' : 'sidebar'}>
             <div className="sidebar-brand center-text">
               <img src={logo} alt="SRHU logo" />
@@ -848,7 +855,10 @@ function App() {
                 <div key={item.label} className="menu-group">
                   <button
                     className={activeMenu === item.label ? 'menu-item active' : 'menu-item'}
-                    onClick={() => setActiveMenu(item.label)}
+                    onClick={() => {
+                      setActiveMenu(item.label)
+                      setIsMobileNavOpen(false)
+                    }}
                     title={isSidebarCollapsed ? item.label : undefined}
                   >
                     <span className="menu-item-content">
@@ -864,7 +874,10 @@ function App() {
                       className={
                         activeMenu === subItem ? 'menu-item submenu active' : 'menu-item submenu'
                       }
-                      onClick={() => setActiveMenu(subItem)}
+                      onClick={() => {
+                        setActiveMenu(subItem)
+                        setIsMobileNavOpen(false)
+                      }}
                     >
                       {subItem}
                     </button>
@@ -887,6 +900,15 @@ function App() {
                 <h2>{activeMenu}</h2>
               </div>
               <div className="topbar-actions">
+                <button
+                  className="icon-btn mobile-nav-trigger"
+                  onClick={() => setIsMobileNavOpen((prev) => !prev)}
+                  title={isMobileNavOpen ? 'Close navigation' : 'Open navigation'}
+                >
+                  <span className="icon-glyph" aria-hidden="true">
+                    {isMobileNavOpen ? 'x' : '='}
+                  </span>
+                </button>
                 <button
                   className="icon-btn"
                   onClick={() => setIsSidebarCollapsed((prev) => !prev)}
@@ -943,12 +965,26 @@ function App() {
                     </svg>
                   </span>
                 </button>
-                <button onClick={() => setIsLoggedIn(false)}>Logout</button>
+                <button
+                  onClick={() => {
+                    setIsLoggedIn(false)
+                    setIsMobileNavOpen(false)
+                  }}
+                >
+                  Logout
+                </button>
               </div>
             </header>
             {renderMainContent()}
           </section>
         </main>
+      )}
+      {isMobileNavOpen && isLoggedIn && (
+        <button
+          className="mobile-nav-overlay"
+          onClick={() => setIsMobileNavOpen(false)}
+          aria-label="Close menu"
+        />
       )}
       {isLeaveFlyoutOpen && (
         <>
